@@ -1,6 +1,3 @@
-// Прошу проверить первые методы Get и Post. По Методу Delete, пока не продвинулся (возможно нужна подсказка). И вопрос по метод Get, внутри одной функции можно ли писать на конечную точку /tasks и get с конечной точкой /tasks/{id}"
-// одной функции можно ли писать на конечную точку /tasks и get с конечной точкой /tasks/{id}"
-
 package main
 
 import (
@@ -84,13 +81,14 @@ func getTaskID(w http.ResponseWriter, r *http.Request) {
 func deleteTaskID(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
 
-	task, ok := tasks[id]
+	_, ok := tasks[id]
 	if !ok {
 		http.Error(w, "ID не найден", http.StatusNoContent)
 		return
 	}
 
-	resp, err := json.Marshal(task)
+	delete(tasks, id)
+	resp, err := json.Marshal(tasks)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -99,12 +97,6 @@ func deleteTaskID(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	w.Write(resp)
-}
-
-func handleMain(res http.ResponseWriter, req *http.Request) {
-	s := fmt.Sprintf("Method: %s\nHost: %s\nPath: %s",
-		req.Method, req.Host, req.URL.Path)
-	res.Write([]byte(s))
 }
 
 func postTasks(w http.ResponseWriter, r *http.Request) {
